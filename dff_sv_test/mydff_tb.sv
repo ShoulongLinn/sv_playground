@@ -33,9 +33,9 @@ property fixed_sequence_check;
     @(posedge clk) disable iff (rst)
   start_vld |-> dout_check(1);
 endproperty
-property fixed_pattern_check;
+property fixed_pattern_check(int data_check);
     @(posedge clk) disable iff (rst)
-  start_vld |-> dout ==8'h1;
+  start_vld |-> dout == data_check;
 endproperty
 //----------------------------------------
 
@@ -46,11 +46,17 @@ endproperty
         din = 0;
         #100;
         data_inject(8'h1,1);
-        assert property (fixed_pattern_check)
+        assert property (fixed_pattern_check(8'h1))
             $display("Expected pattern 1 detected!");
         else $error("Expected pattern 1 not detected!");
-        data_inject(8'h1,0);
-        data_inject(8'h3,0);
+        data_inject(8'h2,1);
+        assert property (fixed_pattern_check(8'h2))
+            $display("Expected pattern 2 detected!");
+        else $error("Expected pattern 2 not detected!");
+        data_inject(8'h3,1);
+        assert property (fixed_pattern_check(8'h3))
+            $display("Expected pattern 3 detected!");
+        else $error("Expected pattern 3 not detected!");
         #100;
         $finish;
     end
